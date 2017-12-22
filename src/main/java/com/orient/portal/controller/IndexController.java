@@ -15,9 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.util.DateUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -67,6 +69,9 @@ public class IndexController {
         TokenCredentials tokenCredentials = casRestFormClient.requestServiceTicket(serviceUrl, profile.get(), context);
         //根据ticket获取用户信息
         final CasProfile casProfile = casRestFormClient.validateServiceTicket(serviceUrl, tokenCredentials, context);
+        Calendar now = DateUtils.createNow();
+        now.add(Calendar.MINUTE, 5);
+        casProfile.addAttribute("exp", now.getTime());
         //生成jwt token
         String token = generator.generate(casProfile);
         model.put("token", token);
