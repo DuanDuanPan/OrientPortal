@@ -68,18 +68,25 @@ spring:
 cas:
   prefixUrl: http://192.168.89.240:8999/cas
   loginUrl: ${cas.prefixUrl}/login
-  serviceUrl: http://192.168.88.24:${server.port}
+  serviceUrl: http://192.168.89.240:${server.port}/portal
   callbackUrl: ${cas.serviceUrl}/callback
 jwt:
   salt: 12345678901234567890123456789012
-debug: true
 server:
-  port: 8080
+  port: 8999
 
 logging:
   file: logs/production_app.log
   level:
     root: WARN
+
+mybatis:
+    type-aliases-package: com.orient.portal.domain.model
+    type-handlers-package: com.orient.portal.typehandler
+    configuration:
+        map-underscore-to-camel-case: true
+        default-fetch-size: 100
+        default-statement-timeout: 30
 
 ---
 
