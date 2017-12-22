@@ -1,6 +1,8 @@
 
 package com.orient.portal.controller;
 
+import com.orient.portal.domain.BasicUser;
+import com.orient.portal.service.BasicUserService;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.pac4j.cas.client.rest.CasRestFormClient;
 import org.pac4j.cas.profile.CasProfile;
@@ -22,7 +24,7 @@ import java.util.Optional;
 
 
 @RestController
-@CrossOrigin
+@CrossOrigin(value = "*")
 public class IndexController {
 
     @Autowired
@@ -33,6 +35,9 @@ public class IndexController {
 
     @Value("${cas.serviceUrl}")
     private String serviceUrl;
+
+    @Autowired
+    private BasicUserService basicUserService;
 
     @GetMapping("/")
     public Object index() {
@@ -46,9 +51,9 @@ public class IndexController {
     }
 
     @GetMapping("/user/detail")
-    public Map<String,String> detail(HttpServletRequest request) {
-        Map<String,String> retVal = new HashMap<>();
-        retVal.put("user",request.getUserPrincipal().getName());
+    public Map<String, String> detail(HttpServletRequest request) {
+        Map<String, String> retVal = new HashMap<>();
+        retVal.put("user", request.getUserPrincipal().getName());
         return retVal;
     }
 
@@ -66,5 +71,10 @@ public class IndexController {
         String token = generator.generate(casProfile);
         model.put("token", token);
         return new HttpEntity<>(model);
+    }
+
+    @GetMapping("/basic/user/{userName}")
+    public BasicUser detail(@PathVariable String userName) {
+        return basicUserService.getUserByUserName(userName);
     }
 }

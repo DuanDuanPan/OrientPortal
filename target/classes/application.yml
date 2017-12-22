@@ -20,15 +20,66 @@ spring:
 
 spring:
   profiles: dev
+  datasource:
+      username: OrientTDM_grid_test2
+      password: goodluck
+      url: jdbc:oracle:thin:@//192.168.89.193:1521/orcl
+      driver-class-name: oracle.jdbc.driver.OracleDriver
+
 cas:
-  prefixUrl: http://127.0.0.1:8080/cas
+  prefixUrl: http://192.168.89.240:8999/cas
   loginUrl: ${cas.prefixUrl}/login
-  serviceUrl: http://127.0.0.1:${server.port}
+  serviceUrl: http://192.168.88.24:${server.port}
   callbackUrl: ${cas.serviceUrl}/callback
 jwt:
   salt: 12345678901234567890123456789012
 debug: true
 server:
-  port: 8989
+  port: 8080
+
+logging:
+  file: logs/dev_app.log
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    org.springframework.web: DEBUG
+    guru.springframework.controllers: DEBUG
+    org.hibernate: DEBUG
+
+mybatis:
+    type-aliases-package: com.orient.portal.domain.model
+    type-handlers-package: com.orient.portal.typehandler
+    configuration:
+        map-underscore-to-camel-case: true
+        default-fetch-size: 100
+        default-statement-timeout: 30
+---
+
+spring:
+  profiles: production
+  datasource:
+    username: OrientTDM_grid_test2
+    password: goodluck
+    url: jdbc:oracle:thin:@//192.168.89.193:1521/orcl
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+
+
+cas:
+  prefixUrl: http://192.168.89.240:8999/cas
+  loginUrl: ${cas.prefixUrl}/login
+  serviceUrl: http://192.168.88.24:${server.port}
+  callbackUrl: ${cas.serviceUrl}/callback
+jwt:
+  salt: 12345678901234567890123456789012
+debug: true
+server:
+  port: 8080
+
+logging:
+  file: logs/production_app.log
+  level:
+    root: WARN
+
 ---
 
