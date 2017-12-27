@@ -30,13 +30,6 @@ import javax.servlet.Filter;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 对shiro的安全配置，是对cas的登录策略进行配置
- *
- * @author Carl
- * @date 2017/9/16
- * @since 1.0.0
- */
 @Configuration
 public class ShiroConfiguration extends AbstractShiroWebConfiguration {
     @Value("#{ @environment['cas.prefixUrl'] ?: null }")
@@ -162,6 +155,7 @@ public class ShiroConfiguration extends AbstractShiroWebConfiguration {
         DefaultShiroFilterChainDefinition definition = new DefaultShiroFilterChainDefinition();
         definition.addPathDefinition("/callback", "callbackFilter");
         definition.addPathDefinition("/logout", "logoutFilter");
+//        definition.addPathDefinition("/swagger*/*", "anon");
         definition.addPathDefinition("/**", "casSecurityFilter");
         return definition;
     }

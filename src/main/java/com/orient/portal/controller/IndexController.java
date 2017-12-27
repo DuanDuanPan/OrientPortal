@@ -1,21 +1,24 @@
 
 package com.orient.portal.controller;
 
-import com.orient.portal.domain.BasicUser;
-import com.orient.portal.service.BasicUserService;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.pac4j.cas.client.rest.CasRestFormClient;
 import org.pac4j.cas.profile.CasProfile;
 import org.pac4j.cas.profile.CasRestProfile;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.credentials.TokenCredentials;
 import org.pac4j.core.profile.ProfileManager;
+import org.pac4j.core.profile.jwt.JwtClaims;
+import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.pac4j.jwt.profile.JwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.thymeleaf.util.DateUtils;
+import org.thymeleaf.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,27 +42,14 @@ public class IndexController {
     private String serviceUrl;
 
     @Autowired
-    private BasicUserService basicUserService;
+    JwtAuthenticator jwtAuthenticator;
 
     @GetMapping("/")
     public Object index() {
         return "index page";
     }
 
-    @GetMapping("/user/{id}")
-    @RequiresRoles("aRoleName")
-    public Object user(@PathVariable(value = "id") String id) {
-        return "users page:" + id;
-    }
-
-    @GetMapping("/user/detail")
-    public Map<String, String> detail(HttpServletRequest request) {
-        Map<String, String> retVal = new HashMap<>();
-        retVal.put("user", request.getUserPrincipal().getName());
-        return retVal;
-    }
-
-    @RequestMapping("/user/login")
+    @RequestMapping("/login")
     public Object login(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> model = new HashMap<>();
         J2EContext context = new J2EContext(request, response);
@@ -71,15 +61,21 @@ public class IndexController {
         final CasProfile casProfile = casRestFormClient.validateServiceTicket(serviceUrl, tokenCredentials, context);
         Calendar now = DateUtils.createNow();
         now.add(Calendar.MINUTE, 5);
-        casProfile.addAttribute("exp", now.getTime());
+//        casProfile.addAttribute("exp", now.getTime());
         //生成jwt token
         String token = generator.generate(casProfile);
         model.put("token", token);
         return new HttpEntity<>(model);
     }
 
-    @GetMapping("/basic/user/{userName}")
-    public BasicUser detail(@PathVariable String userName) {
-        return basicUserService.getUserByUserName(userName);
+    @GetMapping("/token/detail")
+    public Map<String, String> getTokenDetail(String token) {
+        Map<String, String> retVal = new HashMap<>();
+        Map<String, Object> claims = jwtAuthenticator.validateTokenAndGetClaims(token);
+        String userName = (String) claims.get(JwtClaims.SUBJECT);
+        if (!StringUtils.isEmpty(userName)) {
+            retVal.put("userName", userName);
+        }
+        return retVal;
     }
 }
